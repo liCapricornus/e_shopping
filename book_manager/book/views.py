@@ -12,4 +12,11 @@ from django.http import HttpResponse
 
 # 用户输入index访问视图函数
 def index(request):
-    return HttpResponse('1024摩羯座的胜利')
+    # return HttpResponse('1024摩羯座的胜利')
+    # request, template_name, context=None
+
+    # 模拟数据查询
+    context01 = {
+        'name':'给文明以岁月，给时代以AI.'
+    }
+    return render(request,'book/index.html',context=context01)
