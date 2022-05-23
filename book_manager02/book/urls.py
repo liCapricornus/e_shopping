@@ -1,6 +1,6 @@
 from django.urls import path
 from book.views import index
 
-ulpatterns = [
+urlpatterns = [
     path('index/', index)
 ]
