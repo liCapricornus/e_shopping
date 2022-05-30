@@ -39,13 +39,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'apps.users.apps.UsersConfig',  # 注册 这种容易出错，不可取
     'apps.users',  # 注册子应用
+    'corsheaders',  # CORS
 ]
 
 MIDDLEWARE = [
+    # CORS的配置放在最上面
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -195,3 +199,13 @@ LOGGING = {
 
 # ------------------替换系统中的User-----------------------
 AUTH_USER_MODEL = 'users.User'
+
+# -------------------CORS-----------------------
+# CORS白名单
+CORS_ALLOWED_ORIGINS = (     # CORS_ORIGIN_WHITELIST 旧名称亦可
+    'http://127.0.0.1:8080',
+    'http://localhost:8080',
+    'http://www.meiduo.site:8080',
+    'http://www.meiduo.site:8000',
+)
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie  CORS_ALLOW_CREDENTIALS
