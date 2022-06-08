@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-$nos9wf=weh5!00bq@w-_0zu9@*sjur-$hh6f$4ugdle^@w*nf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.meiduo.site', '127.0.0.1']  # ['*'] 均可访问
+# ALLOWED_HOSTS = ['www.meiduo.site', '127.0.0.1']  # ['*'] 均可访问
+ALLOWED_HOSTS = ['*']  # ['*'] 均可访问
 
 
 # Application definition
@@ -39,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # 'apps.users.apps.UsersConfig',  # 注册 这种容易出错，不可取
     'apps.users',  # 注册子应用
-    'corsheaders',  # CORS
+    'apps.verifications',
+    'corsheaders',  # CORS 跨域资源共享(Cross Origin Resource Sharing)
 ]
 
 MIDDLEWARE = [
@@ -55,7 +57,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'meiduo_mall.urls'
+ROOT_URLCONF = 'meiduo_mall.urls'  # 根路由
 
 TEMPLATES = [
     {
@@ -121,7 +123,8 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+# USE_TZ = True
+USE_TZ = False  # 不适用世界时，和北京时间相差8h(数据库中)
 
 
 # Static files (CSS, JavaScript, Images)
@@ -144,12 +147,19 @@ CACHES = {
         }
     },
     "session": {  # 保存session数据
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://127.0.0.1:6379/1",
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            }
-        },
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "code": {  # 保存session数据
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
@@ -198,7 +208,7 @@ LOGGING = {
 }
 
 # ------------------替换系统中的User-----------------------
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.User'   # 子应用.类名
 
 # -------------------CORS-----------------------
 # CORS白名单
@@ -206,6 +216,9 @@ CORS_ALLOWED_ORIGINS = (     # CORS_ORIGIN_WHITELIST 旧名称亦可
     'http://127.0.0.1:8080',
     'http://localhost:8080',
     'http://www.meiduo.site:8080',
-    'http://www.meiduo.site:8000',
+    # 'http://www.meiduo.site:8000',
+    # 'http://127.0.0.1:8000',
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie  CORS_ALLOW_CREDENTIALS
+# 如果True是，cookie 将被允许包含在跨站点 HTTP 请求中。
+# 这会在预检和正常响应中设置Access-Control-Allow-Credentials标题。默认为False.
