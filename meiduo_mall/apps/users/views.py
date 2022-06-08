@@ -27,7 +27,7 @@ from django.shortcuts import render
 from django.views import View
 from apps.users.models import User
 from django.http import JsonResponse
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 import re
 import json
 
@@ -216,6 +216,35 @@ class LoginView(View):
             request.session.set_expiry(0)
 
         # 6.返回响应
-        return JsonResponse({'code':0,'errmsg':'OK!'})
+        response = JsonResponse({'code':0,'errmsg':'OK!'})
+        response.set_cookie('username',username)
+        return response
+
+
+"""
+退出登录----------------------------------------------------------------->
+前端：
+    当用户点击退出摁钮的时候，前端发送一个axios delete的请求
+后段：
+    请求
+    业务逻辑    退出
+    响应 发挥JSON数据
+
+"""
+
+class LogoutView(View):
+
+    def delete(self,request):
+        # 1.删除session信息
+        logout(request)
+
+        response = JsonResponse({'code':400,'errmsg':'OK!'})
+        # 2.删除cookie信息，前端会记录cookie信息+session id
+        response.delete_cookie('username')
+
+        return response
+
+
+
 
 
