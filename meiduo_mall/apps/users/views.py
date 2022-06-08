@@ -1,4 +1,3 @@
-from django.contrib.auth import login
 from django.shortcuts import render
 
 # Create your views here.
@@ -28,6 +27,7 @@ from django.shortcuts import render
 from django.views import View
 from apps.users.models import User
 from django.http import JsonResponse
+from django.contrib.auth import login
 import re
 import json
 
@@ -149,3 +149,73 @@ class RegisterView(View):
     1.将图形验证码的文字信息保存到Redis数据库，为短信验证码做准备。
     2.UUID 用于唯一区分该图形验证码属于哪个用户，也可使用其他唯一标识信息来实现。
 """
+# -----------------------login----------------------------
+"""
+登录
+
+前端：
+    当用户把用户名和密码输入完成之后，会点击登录摁钮。这个时候前端会发送一个ajax（axios）请求
+
+后端：
+    请求：接收数据，验证数据
+    业务逻辑：验证用户名和密码是否正确，session（状态保持）
+    响应：返回json数据 0 成功 400 失败
+
+    POST    /login/
+
+步骤：
+    1.接收数据
+    2.验证数据
+    3.验证用户名和密码是否正确
+    4.session
+    5.判断是否记住登录
+    6.返回响应
+"""
+
+class LoginView(View):
+
+    def post(self,request):
+        # 1.接收数据
+        data = json.loads(request.body.decode())
+        username = data.get('username')
+        password = data.get('password')
+        remembered = data.get('remembered')
+
+        # 2.验证数据
+        if not all([username,password]):
+            return JsonResponse({'code':400,'errmsg':'参数不全！'})
+        # 2.5.验证是根据手机号查询还是根据用户名查询   可以根据修改User.USERNAME_FIELD字段来确定是用户名/手机号来进行判断是什么登录
+        if re.match('1[3-9]\d{9}', username):
+            User.USERNAME_FIELD = 'mobile'
+        else:
+            User.USERNAME_FIELD = 'username'
+
+        # 3.验证用户名和密码是否正确
+        # 方案一（查询数据库）
+        # user = User.objects.filter(username=username,password=password)
+        # if not user:
+        #     return JsonResponse({'code':400,'errmsg':'用户名或者密码错误！'})
+        # 方案二（系统提供）
+        from django.contrib.auth import authenticate
+        # authenticate 传递用户名+密码
+        # 如果用户名+密码输入正确，返回User信息
+        # 不正确则返回None
+        user = authenticate(username=username,password=password)
+        if user is None:
+            return JsonResponse({'code':400,'errmsg':'用户名或者密码错误！'})
+
+        # 4.session
+        login(request,user)
+
+        # 5.判断是否记住登录
+        if remembered is True:
+            # 记住登录
+            request.session.set_expiry(None)
+        else:
+            # 不记住登录 浏览器关闭session过期
+            request.session.set_expiry(0)
+
+        # 6.返回响应
+        return JsonResponse({'code':0,'errmsg':'OK!'})
+
+
