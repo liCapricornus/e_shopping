@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # 'apps.users.apps.UsersConfig',  # 注册 这种容易出错，不可取
     'apps.users',  # 注册子应用
     'apps.verifications',
+    'apps.oauth',  # 注册oauth
     'corsheaders',  # CORS 跨域资源共享(Cross Origin Resource Sharing)
 ]
 
@@ -222,3 +223,11 @@ CORS_ALLOWED_ORIGINS = (     # CORS_ORIGIN_WHITELIST 旧名称亦可
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie  CORS_ALLOW_CREDENTIALS
 # 如果True是，cookie 将被允许包含在跨站点 HTTP 请求中。
 # 这会在预检和正常响应中设置Access-Control-Allow-Credentials标题。默认为False.
+
+# -------------------QQ登录参数--------------------
+# QQ登录参数 申请的客户端id：
+QQ_CLIENT_ID = '101474184' # appid
+# 申请的客户端密钥：
+QQ_CLIENT_SECRET = 'c6ce949e04e12ecc909ae6a8b09b637c'  # aookey
+# 申请时添加的，登录成功后回调的路径
+QQ_REDIRECT_URL = 'http://www.meiduo.site:8080/oauth_callback.html'
