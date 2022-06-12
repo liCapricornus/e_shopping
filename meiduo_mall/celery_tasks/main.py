@@ -32,4 +32,4 @@ app.config_from_object('celery_tasks.config')
 # 3.需要celery自动检测指定包的任务
 # Load task modules from all registered Django apps.
 # 函数中的参数是列表，列表中的元素是tasks路径
-app.autodiscover_tasks(['celery_tasks.sms'])
+app.autodiscover_tasks(['celery_tasks.sms','celery_tasks.email'])

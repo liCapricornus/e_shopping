@@ -264,4 +264,83 @@ class CenterView(LoginRequiredJSONMixin,View):
         return JsonResponse({'code':0,'errmsg':'OK!','info_data':info_data})  # if 没有登录就不会返回JSON数据
 
 
+"""
+邮箱验证------------------------------->
+我的思路：
+    用户POST提交保存后，接收前端用户传入的Email数据，将该Email保存到数据库，并返回响应
+
+需求：1.保存邮箱地址 2.发送一封激活邮件 3.用户激活邮件
+
+前端：
+    用户输入邮箱后发送ajax（axios）请求
+后端：
+当用户输入邮箱，点击保存后，会发送ajax请求
+    请求      就收请求，获取数据
+    业务逻辑    保存邮箱地址 发送一封激活邮件
+    响应  JSON code=0
+    路由  PUT---> 用来更新数据       var url = this.host + '/emails/'
+    步骤
+        1.接收请求
+        2.获取数据
+        3.保存邮箱地址
+        4.发送一封激活邮件
+        5.返回响应
+
+需求（实现什么功能）---> 请求 --业务逻辑--->响应 ---> 步骤 ---> 代码实现
+
+"""
+
+class EmailView(LoginRequiredJSONMixin,View):
+
+    def put(self,request):
+        # 1.接收请求
+        data = json.loads(request.body.decode())
+
+        # 2.获取数据
+        email = data.get('email')
+        # 验证数据
+        if not email:
+            return JsonResponse({'code':400,'errmsg':'缺少email参数！'})
+        if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$',email):
+            return JsonResponse({'code':400,'errmsg':'email格式错误！'})
+
+        # 3.保存邮箱地址
+        user = request.user
+        user.email = email
+        user.save()
+
+        # 4.发送一封激活邮件
+        from django.core.mail import send_mail
+        # send_mail(subject, message, from_email, recipient_list）
+        subject = '美多商城激活邮件'
+        message = ""
+        from_email = '美多商城<lishao_1024@163.com>'
+        recipient_list = ['285051863@qq.com',
+                          # '549456237@qq.com',
+                          # '2743318043@qq.com',
+                          'lishao_1024@163.com']
+        # 4.1对a标签进行加密处理
+        # 因itsdangerous 2.0以上版本不可再用TimedJSONWebSignatureSerializer，加密功能暂时不能实现
+        # 4.2组织激活邮件
+
+        html_message = "点击按钮进行激活<a href='http://www.4399.com'>学习网站请点击！（doge）</a>"
+
+        # send_mail(
+        #     subject=subject,
+        #     message=message,
+        #     from_email=from_email,
+        #     recipient_list=recipient_list,
+        #     html_message=html_message,
+        # )
+        from celery_tasks.email.tasks import celery_send_email
+        celery_send_email.delay(
+            subject=subject,
+            message=message,
+            from_email=from_email,
+            recipient_list=recipient_list,
+            html_message=html_message,
+        )
+
+        # 5.返回响应
+        return JsonResponse({'code':0,'errmsg':'Set email is OK!'})
 
