@@ -254,7 +254,14 @@ class CenterView(LoginRequiredJSONMixin,View):
 
     def get(self,request):
 
-        return JsonResponse({'code':0,'errmsg':'OK!'})  # if 没有登录就不会返回JSON数据
+        info_data = {
+            'username':request.user.username,
+            'mobile':request.user.mobile,
+            'email':request.user.email,
+            'email_active':request.user.email_active,
+        }
+
+        return JsonResponse({'code':0,'errmsg':'OK!','info_data':info_data})  # if 没有登录就不会返回JSON数据
 
 
 
