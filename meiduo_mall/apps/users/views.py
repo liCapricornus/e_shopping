@@ -321,9 +321,17 @@ class EmailView(LoginRequiredJSONMixin,View):
                           'lishao_1024@163.com']
         # 4.1对a标签进行加密处理
         # 因itsdangerous 2.0以上版本不可再用TimedJSONWebSignatureSerializer，加密功能暂时不能实现
+        token = request.user.id
         # 4.2组织激活邮件
 
-        html_message = "点击按钮进行激活<a href='http://www.4399.com'>学习网站请点击！（doge）</a>"
+        verify_url = 'http://www.meiduo.site:8080/success_verify_email.html?token=%s' % token
+
+        html_message = '<p>尊敬的用户您好！</p>' \
+                       '<p>感谢您使用美多商城</p>' \
+                       '<p>您的邮箱为：%s 点击此处链接激活您的邮箱：</p>' \
+                       '<p><a href="%s">%s<a>' % (email, verify_url, verify_url)
+
+        # html_message = "点击按钮进行激活<a href='http://www.4399.com'>学习网站请点击！（doge）</a>"
 
         # send_mail(
         #     subject=subject,
@@ -343,4 +351,46 @@ class EmailView(LoginRequiredJSONMixin,View):
 
         # 5.返回响应
         return JsonResponse({'code':0,'errmsg':'Set email is OK!'})
+
+"""
+需求（知道我们要干什么？？？）：
+前端（用户干了什么，传递了什么参数）：
+    用户会点击激活链接，那个激活链接携带了token
+后端：
+    请求：接收请求，获取参数，验证参数
+    业务逻辑：user_id ,根据用户的id查询数据，修改数据
+    响应：返回响应JSON
+    路由：PUT emails/verification/ 说明token并没有在body里
+    步骤：
+        1.接收请求
+        2.获取参数
+        3.验证参数
+        4.获取user_id
+        5.根据用户id查询数据
+        6.修改数据
+        7.返回响应JSON
+"""
+
+class EmailVerifyView(View):
+
+    def put(self,request):
+        # 1.接收请求
+        params = request.GET
+        # 2.获取参数
+        token = params.get('token')  # 此处得到的就是user_id
+        # 3.验证参数
+        if token is None:
+            return JsonResponse({'code':400,'errmsg':'参数缺失！'})
+        # 4.获取user_id  token是加密令牌，因没有实现解/加密功能，所以
+        user_id = token
+        if user_id is None:
+            return JsonResponse({'code':400,'errmsg':'参数错误！'})
+        # 5.根据用户id查询数据
+        user = User.objects.get(id=user_id)
+        # 6.修改数据
+        user.email_active =True
+        user.save()
+        # 7.返回响应JSON
+        return JsonResponse({'code':0,'errmsg':'Verify email is OK!'})
+
 
