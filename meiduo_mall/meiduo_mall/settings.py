@@ -141,7 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ----------------Django-redis-----------------
 CACHES = {
-    "default": {  # 预留
+    "default": {  # 预留 from django.core.cache import cache django自带包缓存的redis 0号库
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
