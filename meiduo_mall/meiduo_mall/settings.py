@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'apps.verifications',
     'apps.oauth',  # 注册oauth
     'apps.areas',
+    'apps.goods',
+    'apps.contents',
     'corsheaders',  # CORS 跨域资源共享(Cross Origin Resource Sharing)
 ]
 

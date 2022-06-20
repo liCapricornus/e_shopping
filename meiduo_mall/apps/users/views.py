@@ -27,7 +27,7 @@ from django.shortcuts import render
 from django.views import View
 from apps.users.models import User, Address
 from django.http import JsonResponse
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 import re
 import json
 
@@ -513,13 +513,73 @@ class AddressCreateView(LoginRequiredJSONMixin,View):
 
         return JsonResponse({'code':0,'errmsg':'OK!','address':'address_dict'})
 
+    # 修改地址
+    def put(self, request, address_id):
+
+        # 1.接收数据
+        data = json.loads(request.body.decode())
+        receiver = data.get('receiver')
+
+        # 1.5 查询到的为未改变的数据 需求：拿到用户输入的数据 TODO
+        province = data.get('province')
+        city = data.get('city')
+        district = data.get('district')
+
+        place = data.get('place')
+        mobile = data.get('mobile')
+        tel = data.get('tel')
+        email = data.get('email')
+        # 2. 修改数据
+        address = Address.objects.get(id=address_id)
+        address.receiver = receiver
+
+        address.province_id = province
+        address.city_id = city
+        address.district_id = district
+
+        address.place = place
+        address.mobile = mobile
+        address.tel = tel
+        address.email = email
+
+        address.save()
+        # 3.封装字典
+        address_dict = {
+            'receiver': receiver,
+            'province': province,
+            'city': city,
+            'district': district,
+            'place': place,
+            'mobile': mobile,
+            'tel': tel,
+            'email': email
+        }
+        address.save()
+        # 4.返回响应
+        return JsonResponse({'code': 0, 'message': 'modify address is ok', 'address': address_dict})
+
+    # 删除地址
+    def delete(self, request, address_id):
+        # 1.获取数据
+        # 2.查询数据
+        address = Address.objects.get(id=address_id)
+        # 3.删除数据
+        try:
+            address.delete()
+        except Exception as e:
+            print(e)
+            return JsonResponse({'code': 400, 'errmsg': 'delete is ok'})
+        # 4.返回响应
+        return JsonResponse({'code': 0, 'errmsg': 'delete is ok'})
+
+
 """地址展示实现"""
-class AddressView(View):
+class AddressView(LoginRequiredJSONMixin,View):
 
     def get(self,request):
         # 1.查询指定数据
         user = request.user
-        addresses = Address.objects.filter(user=user,is_deleted=False)
+        addresses = Address.objects.filter(user=user.id,is_deleted=False)
         # 2.将对象转换为字典
         address_list = []
         for address in addresses:
@@ -536,4 +596,62 @@ class AddressView(View):
                 'email': address.email
             })
         # 3.返回响应
-        return JsonResponse({'code':0,'errmsg':'OK!','addresses':address_list})
+        return JsonResponse({'code':0,'errmsg':'OK!','addresses':address_list,'default_adress_id':user.default_address_id})
+
+
+"""修改标题功能实现"""
+class AddressTitleView(LoginRequiredJSONMixin,View):
+    # axios.put(this.host + '/addresses/' + this.addresses[index].id + '/title/', {
+    def put(self,request,address_id):
+        # 1.获取数据
+        data = json.loads(request.body.decode())
+        title = data.get('title')
+        # user = request.user
+
+        # 2.修改指定数据
+        address = Address.objects.get(id=address_id)
+        address.title = title
+        address.save()
+
+        # 3.返回响应
+        return JsonResponse({'code':0,'errmsg':'修改标题功能实现！'})
+
+"""默认地址功能实现"""
+class AddressDefaultView(LoginRequiredJSONMixin,View):
+
+
+    def put(self,request,address_id):
+        # 1.修改数据
+        user = request.user
+        user.default_address_id = address_id
+        user.save()
+
+        # 2.返回响应
+        return JsonResponse({'code':0,'errmsg':'默认地址设置完毕！'})
+
+"""修改密码的实现"""
+class PasswordChangeView(View):
+
+    def put(self,request):
+        # 1.查询信息
+        user =request.user
+        # 2.接收数据
+        data = json.loads(request.body.decode())
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        new_password2 = data.get('new_password2')
+
+        # 3.验证数据
+        user = authenticate(username=user.username,password=old_password)
+        if not user:
+            return JsonResponse({'code':400,'errmsg':'密码输入不正确请重新输入！'})
+        if new_password != new_password2:
+            return JsonResponse({'code':400,'errmsg':'密码输入不一致！'})
+
+        # 4.数据更新
+        user.set_password(new_password)
+        user.save()
+
+        # 5.返回响应
+        return JsonResponse({'code': 0, 'errmsg': '成功修改密码！'})
+
