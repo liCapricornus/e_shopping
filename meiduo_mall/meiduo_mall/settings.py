@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -66,7 +66,8 @@ ROOT_URLCONF = 'meiduo_mall.urls'  # 根路由
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'templates'],
+        # 'DIRS': [os.path.join(BASE_DIR,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -246,3 +247,6 @@ EMAIL_HOST_USER = 'lishao_1024@163.com'
 EMAIL_HOST_PASSWORD = 'BCQNBYLXURRFAKZP'
 
 # EMAIL_FROM = '美多商城<hmmeiduo@163.com>' # 发件人抬头
+
+# ------------自定义文件存储类-------------
+DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.MyStorage'
