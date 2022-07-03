@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # 注册插件
     'corsheaders',  # CORS 跨域资源共享(Cross Origin Resource Sharing)
     'haystack',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -261,3 +262,24 @@ HAYSTACK_CONNECTIONS = {
         'INDEX_NAME': 'meiduo_mall', # Elasticsearch建立的索引库的名称
     },
 }
+
+# ----------设置搜索每页返回的记录条数---------------
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
+
+# -------------定时任务----------------
+"""
+# 元素的第一个参数是 频次
+分 时 日 月 周    命令
+
+M: 分钟（0-59）。每分钟用 * 或者 */1 表示
+H：小时（0-23）。（0表示0点）
+D：天（1-31）。
+m: 月（1-12）。
+d: 一星期内的天（0~6，0为星期天）。
+
+# 元素的第二个参数是 定时任务（函数）
+"""
+CRONJOBS = [
+    # ('*/5 * * * *', 'myapp.cron.my_scheduled_job')
+    ('*/15 * * * *', 'apps.contents.crons.generic_meiduo_index', '>> ' + os.path.join(BASE_DIR, 'logs/crontab.log'))
+]

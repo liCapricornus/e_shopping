@@ -191,3 +191,47 @@ class SKUSearchView(SearchView):
             })
 
         return JsonResponse(sku_list,safe=False)
+
+
+"""
+需求：
+    详情页面
+
+    1.分类数据
+    2.面包屑
+    3.SKU信息
+    4.规格信息
+
+
+    我们的详情页面也是需要==静态化==实现的。
+    但是我们再讲解静态化之前，应该可以先把 详情页面的数据展示出来
+
+"""
+
+from utils.goods import get_categories
+from utils.goods import get_breadcrumb
+from utils.goods import get_goods_specs
+class DetailView(View):
+
+    def get(self,request,sku_id):
+        try:
+            sku=SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            pass
+        # 1.分类数据
+        categories=get_categories()
+        # 2.面包屑
+        breadcrumb=get_breadcrumb(sku.category)
+        # 3.SKU信息
+        # 4.规格信息
+        goods_specs=get_goods_specs(sku)
+
+        context = {
+
+            'categories': categories,
+            'breadcrumb': breadcrumb,
+            'sku': sku,
+            'specs': goods_specs,
+
+        }
+        return render(request,'detail.html',context)
