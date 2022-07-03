@@ -11,21 +11,22 @@ https://docs.djangoproject.com/en/1.11/howto/custom-file-storage/
 
 from django.core.files.storage import Storage
 
-# 自定义文件存储类 可以访问到渲染的templates 主页
 class MyStorage(Storage):
-    def open(self, name, mode='rb'):
+
+    def _open(self, name, mode='rb'):
         """Retrieve the specified file from storage."""
         pass
 
-    # 这两个方法复制 系统_open中的
-    def save(self, name, content, max_length=None):
-        """
-        Save new content to the file specified by name. The content should be
-        a proper File object or any Python file-like object, ready to be read
-        from the beginning.
-        """
+    def _save(self, name, content, max_length=None):
         pass
 
+    def exists(self, name):
+        # 判断图片是否存在
+        # Fdfs 自己可以实现 图片重名的处理
+        # 返回False 说明图片不存在,就直接上传就可以
+        return False
+
+
     def url(self, name):
-        # TODO 修改域名优化访问速度
-        return 'http://192.168.1.6:8888/' + name
+
+        return "http://192.168.1.133:8888/" + name

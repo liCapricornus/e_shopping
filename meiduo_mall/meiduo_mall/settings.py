@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     'apps.areas',
     'apps.goods',
     'apps.contents',
+    # 注册插件
     'corsheaders',  # CORS 跨域资源共享(Cross Origin Resource Sharing)
+    'haystack',
 ]
 
 MIDDLEWARE = [
@@ -250,3 +252,12 @@ EMAIL_HOST_PASSWORD = 'BCQNBYLXURRFAKZP'
 
 # ------------自定义文件存储类-------------
 DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.MyStorage'
+
+# ----------------ES配置-----------------
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': 'http://192.168.1.133:9200/', # Elasticsearch服务器ip地址，端口号固定为9200
+        'INDEX_NAME': 'meiduo_mall', # Elasticsearch建立的索引库的名称
+    },
+}
